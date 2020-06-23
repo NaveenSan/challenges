@@ -1,0 +1,206 @@
+import numpy
+from fractions import Fraction
+import math
+
+def interchange_row(all_matrix,absorbing,non_absorbing_list):
+    matrix=[]
+    for x in absorbing:
+        matrix.append(all_matrix[x])
+    for y in non_absorbing_list:
+        matrix.append(all_matrix[y])
+    return matrix
+        
+def interchange_column(all_matrix,absorbing,non_absorbing_list):
+    matrix=[]
+    for index,mat in enumerate(all_matrix):
+#         print(index)
+        matrix.append([])
+#         print(matrix)
+        for x in absorbing:
+            matrix[index].append(all_matrix[index][x])
+        for y in non_absorbing_list:
+            matrix[index].append(all_matrix[index][y])
+    return matrix
+
+def first_block_markov(all_matrix,absorbing,non_absorbing_list):
+    I = []
+    for x in range(len(absorbing)):
+        I.append([])
+        for y in range(len(absorbing)):
+            I[x].append(all_matrix[x][y])
+    return I
+
+def fourth_block_markov(all_matrix,absorbing,non_absorbing_list):
+    Q=[]
+    a=0
+    for x in range(len(absorbing),len(absorbing)+len(non_absorbing_list)):
+        Q.append([])
+        for y in range(len(absorbing),len(absorbing)+len(non_absorbing_list)):
+            Q[a].append(all_matrix[x][y])
+        a+=1
+#         print(Q)
+    return Q
+
+def second_block_markov(all_matrix,absorbing,non_absorbing_list):
+    O=[]
+    a=0
+    for x in range(len(absorbing)):
+        O.append([])
+        for y in range(len(absorbing),len(absorbing)+len(non_absorbing_list)):
+            O[a].append(all_matrix[x][y])
+        a+=1
+#         print(Q)
+    return O
+
+def third_block_markov(all_matrix,absorbing,non_absorbing_list):
+    R =[]
+    a=0
+    for x in range(len(absorbing),len(absorbing)+len(non_absorbing_list)):
+        R.append([])
+        for y in range(len(absorbing)):
+            R[a].append(all_matrix[x][y])
+        a+=1
+#         print(Q)
+    return R
+
+def probabilities(all_matrix):
+    sum_of_row=[]
+    for rows in all_matrix:
+        a=0
+        for values in rows:
+            a+=values
+        sum_of_row.append(a)
+#     print(sum_of_row)
+    for index,rows in enumerate(all_matrix):
+        for index_v,values in enumerate(rows):
+            if sum_of_row[index]!=0:
+                all_matrix[index][index_v]=values/sum_of_row[index]
+    return (all_matrix)
+    
+    
+def IQmatrix(Q):
+    I_matrix = []
+    for rows in range(len(Q)):
+        I_matrix.append([])
+        for column in range(len(Q)):
+            a=0
+            if rows == column:
+                a=1
+            I_matrix[rows].append(a)
+    I = numpy.array(I_matrix) 
+    Q = numpy.array(Q)
+#     print(I)
+    IQ_matrix = numpy.subtract(I,Q)
+#     print(IQ_matrix)
+    return (IQ_matrix)
+        
+def print_matrix(name):
+    for i in name:
+        print(i)
+
+def decimal_round(matrix):
+    new_matrix = []
+    for index,x in enumerate(matrix) :
+        if x==0:
+            x=str(x)
+            new_matrix.append(x[:6])
+        else :
+            x=str(x)
+            new_matrix.append(x[:9])
+    return (new_matrix)
+
+def finding_fractions(matrix):
+    matrix_fraction = ['0' for x in range(len(matrix))]
+#     print(matrix_fraction)
+    x={}
+    for i in range(5000):
+        for j in range(1,5000):
+            a=i/j
+            a=str(a)
+            a=(a[:9])
+            if len(matrix)==0:
+#                 print(x)
+                return x
+            if a in matrix:
+#                 print(matrix)
+                x[a] = str(i)+'/'+str(j)
+                matrix.remove(a)
+def common_div(matrix,fraction):
+    cd=[]
+    denom= []
+    k=0
+    lcm_value = 0
+#     print(fraction)
+#     print(matrix)
+    for prob in matrix :
+        x=fraction[prob]
+        cd.append(str(x))
+        y=x.split('/')
+        denom.append(y[1])
+    for index,values in enumerate(denom):
+        if index > 0:
+            lcm_value = lcm(int(denom[index-1]),int(denom[index]))
+    return lcm_value,cd
+            
+#              y[k]=lcm(denom[k],y[2])
+    
+    
+def gcd(a,b):
+    if a==0:
+        return b
+    return gcd(b%a,a)
+
+def lcm(a,b):
+    return (a*b)/gcd(a,b)
+
+def output(probability,common_divisor):
+    out = []
+    for x in probability:
+        x=x.split('/')
+        if int(x[0]) != 0:
+            multiplier = int(common_divisor)/int(x[1])
+            out.append(int(x[0])*int(multiplier))
+        else :
+            out.append(0)
+    out.append(int(common_divisor))
+    return out
+
+def solution(all_matrix):
+    non_absorbing = {}
+    non_absorbing_list = []
+    absorbing = []
+    for index,row in enumerate(all_matrix):
+        for values in row:
+            if values !=0:
+                non_absorbing[index]=0
+    for i in range(len(all_matrix)):
+        if i in non_absorbing:
+            non_absorbing_list.append(i)
+        if i not in non_absorbing:
+            absorbing.append(i)
+#     print(non_absorbing_list)
+#     print(absorbing)
+    all_matrix = interchange_row(all_matrix,absorbing,non_absorbing_list)
+    all_matrix = interchange_column(all_matrix,absorbing,non_absorbing_list)
+    all_matrix = probabilities(all_matrix)
+    I = first_block_markov(all_matrix,absorbing,non_absorbing_list)
+    O = second_block_markov(all_matrix,absorbing,non_absorbing_list)
+    R = third_block_markov(all_matrix,absorbing,non_absorbing_list)
+    Q = fourth_block_markov(all_matrix,absorbing,non_absorbing_list)
+    IQ_matrix = IQmatrix(Q)
+    F = numpy.linalg.inv(IQ_matrix)
+    FR = numpy.dot(F,R)
+#     print_matrix(FR)
+    
+    matrix = decimal_round(FR[0])
+    matrix_a= []
+    for i in matrix:
+        matrix_a.append(i)
+#     
+    fraction = finding_fractions(matrix)
+#     print(fraction)
+#     print(matrix_a)
+    common_divisor , probability= common_div(matrix_a,fraction)
+#     print(probability,common_divisor)
+    o=output(probability,common_divisor)
+    return (o)
