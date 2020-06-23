@@ -1,0 +1,32 @@
+l = int(input())
+# l=5
+y=0
+min_count = 0
+a=[]
+# a=[[1, 2, 3,4,5], [ 6,7,8,9,10], [11,12,13,14,15],[16,17,18,19,20],[21,22,23,24,25]]
+for row in range(l):
+    a.append([])
+    for column in range(l):
+        a[row].append(int(input()))
+length =0
+if l&1 == 1:
+#     print(l)
+    y=(l+1)/2
+else:
+#     print()
+    y=l/2
+# print(y)
+# print(a)
+z=[]
+for turns in range(int(y)):
+    for x in range(min_count,l):
+        z.append(a[turns][x])
+    for x in range(min_count+1,l):
+#         z.append(x,l-1)
+        z.append(a[x][l-1])
+    for x in range(l-1-1,min_count-1,-1):
+        z.append(a[l-1][x])
+    for x in range(l-1-1,min_count,-1):
+        z.append(a[x][turns])
+    min_count+=1
+    l-=1
